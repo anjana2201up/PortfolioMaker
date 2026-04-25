@@ -1,37 +1,42 @@
 const mongoose = require("mongoose");
 
-const sectionSchema = new mongoose.Schema({
-  id: String,
-  type: { type: String, enum: ["hero", "about", "projects", "skills", "contact", "custom"] },
-  title: String,
-  content: String,
-  bgColor: String,
-  textColor: String,
-  fontSize: String,
-  position: { x: Number, y: Number },
-  size: { width: String, height: String },
-  order: Number
-}, { _id: false });
-
-const projectSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
-  name: { type: String, required: true, default: "My Portfolio", maxlength: 100 },
-  description: { type: String, maxlength: 500 },
-  sections: [sectionSchema],
-  theme: {
-    primaryColor: { type: String, default: "#6366f1" },
-    bgColor: { type: String, default: "#020617" },
-    fontFamily: { type: String, default: "Segoe UI" }
+const ProjectSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+      trim: true,
+      maxlength: [120, "Title cannot exceed 120 characters"],
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [1000, "Description cannot exceed 1000 characters"],
+    },
+    sections: {
+      type: Array,
+      default: [],
+    },
+    theme: {
+      type: String,
+      default: "default",
+    },
+    published: {
+      type: Boolean,
+      default: false,
+    },
+    publishedUrl: {
+      type: String,
+      default: null,
+    },
   },
-  isPublished: { type: Boolean, default: false },
-  publishedUrl: { type: String },
-  views: { type: Number, default: 0 },
-  lastModified: { type: Date, default: Date.now }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
-projectSchema.pre("save", function (next) {
-  this.lastModified = new Date();
-  next();
-});
-
-module.exports = mongoose.model("Project", projectSchema);
+module.exports = mongoose.model("Project", ProjectSchema);
